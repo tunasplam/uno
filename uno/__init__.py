@@ -1,4 +1,4 @@
-from .agent import LLMAgent, HumanAgent
+from .agents import Agent, LLMAgent, HumanAgent
 from .unoserver import UnoServer
 
-__all__ = ["UnoServer", "LLMAgent", "HumanAgent"]
+__all__ = ["Agent", "UnoServer", "LLMAgent", "HumanAgent"]

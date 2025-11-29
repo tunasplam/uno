@@ -1,17 +1,5 @@
-"""This class represents each agent which will be playing multiple games of uno.
-All agent-specific material is tracked here but game-specific information is tracked
-in Player object.
-
-Using llama-cpp-python + quantized 7B model at first with CPU. Eventually will want
-to move towards GPU for speed.
-"""
-
 from transformers import AutoModelForSeq2SeqLM, AutoTokenizer
-
-class Agent:
-    "MetaType for all agents."
-    def act(self, prompt_dict: dict) -> dict:
-        raise NotImplementedError
+from .agent import Agent
 
 class LLMAgent(Agent):
     "These are LLMs playing the game."
@@ -28,7 +16,7 @@ class LLMAgent(Agent):
 
         self.strategy = strategy if strategy else "Do what you need to do to win the game."
 
-    def act(self, prompt_dict: dict) -> str:
+    def act(self, prompt_dict: dict, is_turn: bool) -> str:
         prompt = self._build_prompt(prompt_dict)
 
         inputs = self.tokenizer(
@@ -57,11 +45,3 @@ class LLMAgent(Agent):
         system_parts.append("Question: Which card should you play?")
         system_parts.append("Answer:")
         return "\n".join(system_parts).strip()
-
-class HumanAgent(Agent):
-    "For when humans want to play the game."
-    def __init__(self):
-        raise NotImplementedError
-
-    def act(self, prompt_dict: dict) -> dict:
-        raise NotImplementedError

@@ -44,7 +44,7 @@ import logging
 import sys
 import time
 
-from .agent import Agent
+from .agents import Agent
 from .card import Card, is_wild, color, value
 from .deck import Deck
 from .player import Player
@@ -131,18 +131,26 @@ class UnoServer:
 
         # stats on players
         context.append("Player | Cards:")
-        for p in self.players:
-            context.append(f"{p.id} {len(p.hand)}")
+        for p2 in self.players:
+            context.append(f"{p2.id} {len(p2.hand)}")
 
         # stats on deck
         context.append(f"{len(self.deck.cards)} card(s) in draw deck.")
         context.append(f"Top card: {self.deck.top_card_on_discard_pile()}")
 
+        is_turn = p == self.next_player
+
+        if is_turn and self.must_draw_count > 0:
+            p.message(f"You must draw {self.must_draw_count} times")
+
+        if is_wild(self.deck.top_card_on_discard_pile()):
+            p.message(f"Chosen color: {self.next_color}")
+
         context.append("Messages:")
         context.append(_format_messages(p.message_queue))
         p.clear_messages()
         logging.info("\n".join(context))
-        p.send_context_and_prompt(context)
+        p.send_context_and_prompt(context, is_turn)
 
     def process_request(self, r: dict):
         """
@@ -153,7 +161,6 @@ class UnoServer:
         "nextColor: ["Y","R","B","G","W"]
         }
         """
-        logging.debug(r)
         p = self.get_player(r["playerID"])
         match r["action"]:
             case "Play card":
@@ -266,26 +273,21 @@ class UnoServer:
             case "S":
                 self.iterate_next_player()
                 self.iterate_next_player()
-
             case "D":
                 self.must_draw_count += 2
                 self.iterate_next_player()
-
             case "F":
                 self.must_draw_count += 4
                 self.next_color = next_color
                 self.iterate_next_player()
-
             case "W":
                 self.next_color = next_color
                 self.iterate_next_player()
-
             case "R":
                 p = self.players.popleft()
                 self.players = deque(reversed(self.players))
                 self.players.append(p)
                 self.next_player = self.players[0]
-
             case _:
                 self.iterate_next_player()
 
@@ -307,8 +309,7 @@ class UnoServer:
 def _format_messages(message_queue: list[str]) -> str:
     if not message_queue:
         return ""
-
-    return "\n".join([f"{i}. {m}" for i, m in enumerate(message_queue)])
+    return "\n".join([f"- {m}" for m in message_queue])
 
 class Error:
     "This means that the agent did something bad. Also hands their card back."
