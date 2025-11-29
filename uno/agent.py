@@ -6,7 +6,6 @@ Using llama-cpp-python + quantized 7B model at first with CPU. Eventually will w
 to move towards GPU for speed.
 """
 
-import logging
 from transformers import AutoModelForSeq2SeqLM, AutoTokenizer
 
 class Agent:
@@ -31,11 +30,20 @@ class LLMAgent(Agent):
 
     def act(self, prompt_dict: dict) -> str:
         prompt = self._build_prompt(prompt_dict)
+
         inputs = self.tokenizer(
-            prompt, return_tensors="pt").to(self.model.device)
-        output_ids = self.model.generate(**inputs, max_new_tokens=50)
+            prompt, return_tensors="pt"
+        ).to(self.model.device)
+
+        output_ids = self.model.generate(
+            **inputs,
+            max_new_tokens=20,
+            do_sample=False,
+            num_beams=1, #greedy alg
+            temperature=1.0
+        )
+
         response = self.tokenizer.decode(output_ids[0], skip_special_tokens=True)
-        logging.info("RESPONSE:\n %s", response)
         return response
 
     def _build_prompt(self, prompt: dict) -> str:
@@ -46,6 +54,8 @@ class LLMAgent(Agent):
                 system_parts.append(prompt[k])
 
         system_parts.append(f"{'\n'.join(prompt['context'])}s")
+        system_parts.append("Question: Which card should you play?")
+        system_parts.append("Answer:")
         return "\n".join(system_parts).strip()
 
 class HumanAgent(Agent):

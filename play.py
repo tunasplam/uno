@@ -19,15 +19,25 @@ def play_one_game(num_agents: int=4):
 
 def download_models():
     tokenizer = AutoTokenizer.from_pretrained(
-        "google/flan-t5-small", use_fast=False
+        "google/flan-t5-base", use_fast=False
     )
     tokenizer.save_pretrained("/home/jordan/agents/tokenizer")
 
     model = AutoModelForSeq2SeqLM.from_pretrained(
-        "google/flan-t5-small",
+        "google/flan-t5-base",
         device_map="auto"
     )
     model.save_pretrained("/home/jordan/agents/uno-agent")
+
+# TODO we need training data. Let's generate it by playing games of uno. This means that we need to implement human agent
+# and implement a logging strategy.
+# training data needs to be of form:
+# training_+data = [
+#   {
+    # "input": str,
+    # "output": str
+#   } ...
+# we need at least 2000 examples. holy crap! maybe we generate programmatically?
 
 if __name__ == '__main__':
     # TODO check if LLMs installed? if not, then call download_models?

@@ -1,4 +1,3 @@
-Decide your next action.
 Return ONLY strict JSON with this schema
 {
   "action": Play card | Draw card | Do nothing | Yell UNO
