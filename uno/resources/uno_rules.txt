@@ -1,0 +1,51 @@
+UNO RULES (for agents)
+
+OVERVIEW
+- You are playing UNO using standard rules.
+- Your goal is to play all cards from your hand before the other players.
+
+BASIC PLAY
+- You may play a card if it matches the COLOR, NUMBER, or SYMBOL of the top card on the discard pile.
+- If you cannot play a valid card, you must draw a card.
+- After drawing, if the drawn card is playable, you may choose to play it immediately.
+- Turns proceed in order of seating unless reversed.
+
+CARD TYPES
+1. Number Cards (0–9 in four colors: Red R, Green G, Blue B, Yellow Y)
+   - Playable by matching number or color.
+
+2. Action Cards:
+   - Skip (S; color-coded): Next player loses their turn.
+   - Reverse (R; color-coded): Reverses direction of play.
+   - Draw Two (D; color-coded): Next player draws two cards.
+   - Action cards may be played by matching the card’s color or symbol.
+
+3. Wild Cards:
+   - Wild (WW): You choose the next color. Playable at any time.
+   - Wild Draw Four (WF): You choose the next color. Next player draws four.
+
+SPECIAL RULES
+- A card is "playable" only if it follows the above matching rules.
+- You may not invent new actions or new card types.
+- You may only choose a nextColor when playing a WW or WF.
+- nextColor must be one of: "R", "G", "B", "Y".
+
+UNO CALLING
+- When you have exactly 1 card left, you should take the action "Yell UNO".
+- If somebody has exactly one card in their hand and you yell uno, they are
+dealt a number of cards specified by the game rules.
+
+LEGALLY VALID ACTIONS
+Your available actions each turn are:
+  "Play card"   → Attempt to play a specific card from your hand.
+  "Draw card"   → Take a card from the draw pile.
+  "Do nothing"  → If it is not your turn you will likely do this.
+  "Yell UNO"    → To shield yourself if you have one card remaining or to 
+  trap another player who has one card before they shield themselves.
+
+CONSTRAINTS AND CLARIFICATIONS
+- You may only play a card that exists in your hand.
+- When playing a card, specify exactly which one using your game’s card format.
+- If you play a WW or WF, you must specify nextColor.
+- If you play any other card, omit nextColor.
+- You may not choose multiple actions; return one single action per turn.
