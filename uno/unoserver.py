@@ -42,6 +42,7 @@ requires them to actually perform draw actions.
 from collections import deque
 import logging
 import sys
+import time
 
 from .agent import Agent
 from .card import Card, is_wild, color, value
@@ -110,37 +111,32 @@ class UnoServer:
         self.playing = True
 
     def play_game(self):
-        for p in self.players:
-            self.broadcast_world_state(p)
-
         while self.playing:
-            # wait if nothing on queue
-            # TODO if everybody gave bad input, then we will have a stall here?
-            if not self.request_queue:
-                continue
-
             for p in self.players:
                 self.broadcast_world_state(p)
 
-            self.process_request(self.request_queue.popleft())
+            while self.request_queue:
+                self.process_request(self.request_queue.popleft())
+
+            # :)
+            time.sleep(.2)
 
     def broadcast_world_state(self, p) -> str:
         "Provides context to our players"
         context= []
 
         # personal stats
-        context.append(f"You have {len(p.hand)} card(s).")
+        context.append("Cards")
         context.append(" ".join(p.hand))
 
         # stats on players
-        context.append("Player card counts:")
+        context.append("Player | Cards:")
         for p in self.players:
-            context.append(f"Player {p.id}: {len(p.hand)}")
+            context.append(f"{p.id} {len(p.hand)}")
 
         # stats on deck
-        context.append(f"{len(self.deck.cards)} card(s) sit in the draw deck.")
-        context.append(f"{len(self.deck.discard_pile)} card(s) sit in the discard pile.")
-        context.append(f"The top card is {self.deck.top_card_on_discard_pile()}")
+        context.append(f"{len(self.deck.cards)} card(s) in draw deck.")
+        context.append(f"Top card: {self.deck.top_card_on_discard_pile()}")
 
         context.append("Messages:")
         context.append(_format_messages(p.message_queue))
@@ -310,7 +306,7 @@ class UnoServer:
 
 def _format_messages(message_queue: list[str]) -> str:
     if not message_queue:
-        return "No messages!"
+        return ""
 
     return "\n".join([f"{i}. {m}" for i, m in enumerate(message_queue)])
 

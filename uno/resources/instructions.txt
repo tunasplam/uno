@@ -1,13 +1,11 @@
-You are an UNO agent. Decide your next action.
-Return ONLY strict JSON, with this schema:
+Decide your next action.
+Return ONLY strict JSON with this schema
 {
-  "action": "Play card" | "Draw card" | "Do nothing" | "Yell UNO"
-  "card": "<CARD>" | null
-  "nextColor": "Y" | "G" | "B" | "R" | null
+  "action": Play card | Draw card | Do nothing | Yell UNO
+  "card": <CARD> | null
+  "nextColor": Y | G | B | R | null
 }
 Rules:
-- Only specify nextColor when playing a wild card.
-- If your hand doesn’t contain the card you name, the move is invalid.
-- Do not write anything except valid JSON.
-- Any individual feedback or important announcements related to the game will
-be provided to you as "messages".
+- Only specify nextColor when playing WW or WF.
+- Your hand must contain the card you name.
+- Feedback will be provided as messages.

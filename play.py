@@ -2,8 +2,7 @@
 Here we can manually trigger some games of uno
 """
 
-import torch
-from transformers import AutoModelForCausalLM, AutoTokenizer
+from transformers import AutoModelForSeq2SeqLM, AutoTokenizer
 from uno import UnoServer, LLMAgent
 
 # four agents play a game
@@ -18,20 +17,19 @@ def play_one_game(num_agents: int=4):
     for p in server.players:
         print(f"Player {p.id} {p.result}")
 
-def download_llama_models():
+def download_models():
     tokenizer = AutoTokenizer.from_pretrained(
-        "huggyllama/llama-7b", use_fast=False
+        "google/flan-t5-small", use_fast=False
     )
     tokenizer.save_pretrained("/home/jordan/agents/tokenizer")
 
-    model = AutoModelForCausalLM.from_pretrained(
-        "huggyllama/llama-7b",
-        dtype=torch.float16,
-        device_map="auto",
-        attn_implementation="sdpa"
+    model = AutoModelForSeq2SeqLM.from_pretrained(
+        "google/flan-t5-small",
+        device_map="auto"
     )
     model.save_pretrained("/home/jordan/agents/uno-agent")
 
 if __name__ == '__main__':
-    # TODO check if LLMs installed? if not, then call download_llama_models?
+    # TODO check if LLMs installed? if not, then call download_models?
+    download_models()
     play_one_game()

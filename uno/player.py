@@ -4,6 +4,8 @@ All game-specific information pertaining to each player is stored here.
 
 from collections import deque
 from importlib.resources import files
+import json
+import logging
 from typing import Literal
 
 from .agent import Agent
@@ -43,6 +45,7 @@ class Player:
 
     def send_context_and_prompt(self, context: str):
         "Gives a player the world state. This prompts the agent's request, if any."
+        logging.info("Prompting")
         prompt = {
             "rules": _get_resource('uno.resources', 'uno_rules.txt'),
             "context": context,
@@ -50,7 +53,13 @@ class Player:
             "strategy": self.agent.strategy
         }
 
-        response: dict = self.agent.act(prompt)
+        raw_response: str = self.agent.act(prompt)
+        try:
+            response = json.loads(raw_response)
+        except json.JSONDecodeError as e:
+            self.message("Invalid response. Send JSON.")
+            return
+
         self.take_action(response)
 
     def take_action(self, action: dict):

@@ -6,6 +6,7 @@
         "huggyllama",
         "popleft",
         "pyproject",
+        "RGBY",
         "sdpa",
         "unoserver"
     ]
