@@ -43,16 +43,17 @@ class Player:
     def clear_messages(self):
         self.message_queue.clear()
 
-    def send_context_and_prompt(self, context: str, is_turn: bool):
-        "Gives a player the world state. This prompts the agent's request, if any."
-        logging.info("Prompting")
-        prompt = {
+    def create_prompt(self, context: str) -> dict:
+        return {
             "rules": _get_resource('uno.resources', 'uno_rules.txt'),
             "context": context,
             "instructions": _get_resource('uno.resources', 'instructions.txt'),
             "strategy": self.agent.strategy if isinstance(self.agent, LLMAgent) else None
         }
 
+    def send_context_and_prompt(self, context: str, is_turn: bool):
+        "Gives a player the world state. This prompts the agent's request, if any."
+        prompt = self.create_prompt(context)
         raw_response: str = self.agent.act(prompt, is_turn)
         try:
             response = json.loads(raw_response)

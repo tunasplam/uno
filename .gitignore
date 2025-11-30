@@ -9,3 +9,6 @@ wheels/
 
 # Virtual environments
 .venv
+
+# train data sets
+training/*.json

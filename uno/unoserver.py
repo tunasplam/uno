@@ -43,16 +43,20 @@ from collections import deque
 import logging
 import sys
 import time
+import typing
 
 from .agents import Agent
 from .card import Card, is_wild, color, value
 from .deck import Deck
 from .player import Player
 
+Color = typing.Literal["Y", "G", "B", "R"]
+
 class UnoServer:
     def __init__(
         self, players: list[Agent], player_starting_hand: int = 7,
-        uno_penalty=7, forced_top_card: Card=None, log_level: int=logging.INFO
+        uno_penalty=7, forced_top_card: Card=None, blank_slate: bool=False,
+        log_level: int=logging.INFO
     ):
         """Manages a game of Uno.
 
@@ -66,7 +70,10 @@ class UnoServer:
             forced_top_card (Card, optional): Forces top card to be a given card.
                 Does not actually remove it from draw deck or any player's hands so
                 this likely introduces a duplicate. Defaults to None.
+            blank_slate (bool, optional): Does not hand cards to players or reveal top card.
+                Good for mock scenarios like generating random train datasets.
         """
+
         # allow logging to stdout
         root = logging.getLogger()
         root.setLevel(log_level)
@@ -80,6 +87,9 @@ class UnoServer:
         # requests will be dict payloads.
         self.request_queue: deque[dict] = deque([])
 
+        # which color to request next
+        self.next_color: Color = None
+
         # spawn the players. their index in this list is turn order.
         # the person who is at the top of this list is the person
         # whose turn it is.
@@ -89,13 +99,16 @@ class UnoServer:
         ])
         self.next_player = self.players[0]
 
+        # keeps track of how many cards the current player must draw.
+        self.must_draw_count = 0
+
+        if blank_slate:
+            return
+
         # deal the cards.
         for _ in range(player_starting_hand):
             for p in self.players:
                 p.give(self.deck.draw())
-
-        # keeps track of how many cards the current player must draw.
-        self.must_draw_count = 0
 
         # resolve the top card on the deck
         self.resolve(
@@ -121,8 +134,13 @@ class UnoServer:
             # :)
             time.sleep(.2)
 
-    def broadcast_world_state(self, p) -> str:
+    def broadcast_world_state(self, p: Player):
         "Provides context to our players"
+        is_turn = p == self.next_player
+        context = self.build_context(p, is_turn)
+        p.send_context_and_prompt(context, is_turn)
+
+    def build_context(self, p: Player, is_turn: bool) -> list[str]:
         context= []
 
         # personal stats
@@ -130,18 +148,16 @@ class UnoServer:
         context.append(" ".join(p.hand))
 
         # stats on players
-        context.append("Player | Cards:")
+        context.append("Player | Cards | shielded:")
         for p2 in self.players:
-            context.append(f"{p2.id} {len(p2.hand)}")
+            context.append(f"{p2.id} {len(p2.hand)} {"T" if p2.is_shielded else "F"}")
 
         # stats on deck
         context.append(f"{len(self.deck.cards)} card(s) in draw deck.")
         context.append(f"Top card: {self.deck.top_card_on_discard_pile()}")
 
-        is_turn = p == self.next_player
-
         if is_turn and self.must_draw_count > 0:
-            p.message(f"You must draw {self.must_draw_count} times")
+            p.message(f"You must draw {self.must_draw_count} card(s)")
 
         if is_wild(self.deck.top_card_on_discard_pile()):
             p.message(f"Chosen color: {self.next_color}")
@@ -150,7 +166,7 @@ class UnoServer:
         context.append(_format_messages(p.message_queue))
         p.clear_messages()
         logging.info("\n".join(context))
-        p.send_context_and_prompt(context, is_turn)
+        return context
 
     def process_request(self, r: dict):
         """

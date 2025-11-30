@@ -1,4 +1,4 @@
-Your want to run out of cards before the other players.
+You want to run out of cards before the other players.
 
 RULES
 - You may play a card if it matches the COLOR, NUMBER, or SYMBOL of the top card on the discard pile.

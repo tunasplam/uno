@@ -16,8 +16,8 @@ class LLMAgent(Agent):
 
         self.strategy = strategy if strategy else "Do what you need to do to win the game."
 
-    def act(self, prompt_dict: dict, is_turn: bool) -> str:
-        prompt = self._build_prompt(prompt_dict)
+    def act(self, prompt_dict: dict) -> str:
+        prompt = self.build_prompt(prompt_dict)
 
         inputs = self.tokenizer(
             prompt, return_tensors="pt"
@@ -34,7 +34,7 @@ class LLMAgent(Agent):
         response = self.tokenizer.decode(output_ids[0], skip_special_tokens=True)
         return response
 
-    def _build_prompt(self, prompt: dict) -> str:
+    def build_prompt(self, prompt: dict) -> str:
         system_parts = []
 
         for k in ("rules", "instructions", "strategy"):

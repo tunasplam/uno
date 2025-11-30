@@ -3,14 +3,14 @@ Here we can manually trigger some games of uno
 """
 
 from transformers import AutoModelForSeq2SeqLM, AutoTokenizer
-from uno import UnoServer, LLMAgent, HumanAgent
+import uno
 
 # four agents play a game
 def play_one_game(num_agents: int=4):
     print("Creating agents...")
-    agents = [HumanAgent(str(i)) for i in range(num_agents)]
+    agents = [uno.HumanAgent(str(i)) for i in range(num_agents)]
     print("Creating server...")
-    server = UnoServer(agents)
+    server = uno.UnoServer(agents)
     print("Starting game...")
     server.play_game()
     print("Game over!")
@@ -41,5 +41,5 @@ def download_models():
 
 if __name__ == '__main__':
     # TODO check if LLMs installed? if not, then call download_models?
-    # download_models()
-    play_one_game()
+    download_models()
+    #play_one_game()
