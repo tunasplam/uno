@@ -9,17 +9,18 @@ import numpy as np
 from tqdm import tqdm
 import uno
 
-def generate_training_data(n: int, out: str, seed: int=24, ratios: dict=None):
+def generate_training_data(n: int, out: str, seed: int=None, ratios: dict=None):
     """Generates training data for our agents to learn from.
 
     Args:
         n (int): Number of samples to generate.
         out (str): Filename for json output
-        seed (int, optional): What seed to use. Defaults to 24.
+        seed (int, optional): What seed to use.
         ratios (dict, optional): Custom ratios for each scenario.
     """
-    random.seed(seed)
-    np.random.seed(seed)
+    if seed:
+        random.seed(seed)
+        np.random.seed(seed)
 
     if not ratios:
         ratios = {
@@ -156,7 +157,7 @@ def draw_needed_no_playable() -> list[dict]:
         while playable(random_card, top_card, server.next_color):
             random_card = random_card_no_wild()
 
-        server.next_player.hand[0] = random_card
+        server.next_player.hand = [random_card]
 
     return {
         "input": ''.join(create_input(server, server.next_player)),
@@ -190,7 +191,7 @@ def draw_unneeded() -> list[dict]:
         while playable(random_card, top_card, server.next_color):
             random_card = random_card_no_wild()
 
-        server.next_player.hand[0] = random_card
+        server.next_player.hand = [random_card]
 
     return {
         "input": ''.join(create_input(server, server.next_player)),
@@ -332,6 +333,4 @@ def random_game_state() -> uno.UnoServer:
     return server
 
 if __name__ == '__main__':
-    # from pprint import pprint
-    # pprint(generate_data_for_key("draw_needed_forced", 10))
     generate_training_data(2000, 'autoset2k_v1')
