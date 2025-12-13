@@ -57,3 +57,7 @@ After starting the training pipeline, you can monitor its progress using the `te
 `uv run tensorboard --logdir /home/jordan/agents/uno/logs-{model_id}`
 
 Then navigate to `http://localhost:6006/`.
+
+## Reinforcement Learning
+
+Once a model knows how to play uno, it plays uno in order to develop strategies.
