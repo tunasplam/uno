@@ -20,23 +20,6 @@ Error : {
     Not your turn | Invalid Card | Must draw Card
 }
 
-TODO list:
-
-- there is currently inconsistency surrounding forced draws. Calling uno
-gives UNO_PENALTY cards to person caught whereas playing a draw card
-requires them to actually perform draw actions.
-
-- refactor deck cards -> draw_pile
-
-- override uno_rules.txt and instructions.txt with user supplied files
-
-- tui for actually playing uno against the agents
-    - this will mean there will likely be a player agent. send_context_and_prompt
-    calls self.agent.act(prompt) which, for HumanAgent, should format the prompt nicely as
-    a tui and the tui interaction will return the response.
-    - will be likely impossible to win bc the AI will be too fast for calling uno. give
-    them time lags if a human is playing?
-
 """
 
 from collections import deque
@@ -266,7 +249,7 @@ class UnoServer:
             p.give(c)
             return
 
-        # if player has one card, they win!
+        # if player has no cards, they win!
         if len(p.hand) == 0:
             self.declare_winner(p)
             return
